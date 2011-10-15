@@ -347,7 +347,7 @@ sub poll_facebook {
 
 sub wordwrap {
     my $text = shift;
-    return BarnOwl::wordwrap($text, BarnOwl::getvar('edit:maxwrapcols'));
+    return BarnOwl::wordwrap($text, BarnOwl::getvar('edit:maxfillcols'));
 }
 
 sub format_body {
