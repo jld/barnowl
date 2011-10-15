@@ -411,7 +411,6 @@ cancel it.
 #############################################################################
 # wait queue/slots
 
-sub _slot_schedule;
 sub _slot_schedule($) {
    my $host = shift;
 
