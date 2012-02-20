@@ -12,11 +12,16 @@ BarnOwl::Message::Twitter
 package BarnOwl::Message::Twitter;
 use base qw(BarnOwl::Message);
 
-sub context {'twitter'}
-sub subcontext {undef}
+sub context { return "twitter"; }
 sub service { return (shift->{"service"} || "http://twitter.com"); }
 sub account { return shift->{"account"}; }
 sub retweeted_by { shift->{retweeted_by}; }
+sub subcontext { 
+    my $self = shift;
+    return $self->retweeted_by || $self->sender;
+    ## Alternative:
+    # $self->account eq "twitter" ? undef : $self->account;
+}
 sub long_sender {
     my $self = shift;
     $self->service =~ m#^\s*(.*?://.*?)/.*$#;
@@ -49,13 +54,11 @@ sub smartfilter {
     my $inst = shift;
     my $filter;
 
-    if($inst) {
-        $filter = "twitter-" . $self->sender;
-        BarnOwl::command("filter", $filter,
-                         qw{type ^twitter$ and sender}, '^'.$self->sender.'$');
-    } else {
-        $filter = "twitter";
-    }
+    my $blame = $self->retweeted_by || $self->sender;
+    $filter = "twitter-via-" . $blame;
+    BarnOwl::command("filter", $filter,
+		     qw{type ^twitter$ and ( sender}, "^\Q$blame\E\$",
+		     qw{or retweeted_by}, "^\Q$blame\E\$", qw{)});
     return $filter;
 }
 
